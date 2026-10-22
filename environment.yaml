@@ -1,0 +1,17 @@
+name: sc-embed-bench
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - snakemake>=8
+  - pip
+  - pip:
+      - cellxgene-census
+      - scanpy>=1.10
+      - scvi-tools
+      - scikit-learn
+      - seaborn
+      - pyyaml
+      # scGPT (optional, GPU): pip install scgpt "flash-attn<1.0.5"
+      # See the scGPT README for the torch/CUDA versions it expects.

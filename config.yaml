@@ -1,0 +1,25 @@
+# ---- Data selection (CELLxGENE Census) ----
+census_version: "2025-11-08"   # pinned for reproducibility
+tissue: "lung"
+diseases: ["normal", "lung adenocarcinoma"]
+assay: "10x 3' v3"
+max_donors: 20            # split evenly between normal and adenocarcinoma
+max_cells_per_donor: 2000
+min_cells_per_type: 50    # drop cell types too small to evaluate fairly
+seed: 0
+
+# ---- Preprocessing ----
+min_genes: 200
+max_pct_mito: 20
+n_top_genes: 2000
+n_pcs: 50
+
+# ---- Embeddings ----
+scvi_latent: 30
+scvi_epochs: 200
+run_scgpt: true            # needs a GPU; set false to run PCA + scVI only
+scgpt_model_dir: "models/scGPT_human"   # download the "whole-human" checkpoint here
+
+# ---- Evaluation ----
+test_donor_fraction: 0.25
+knn_k: 15

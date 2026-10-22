@@ -1,0 +1,19 @@
+# Large or regenerable pipeline outputs (rebuild with `snakemake`)
+data/
+embeddings/
+models/
+results/*
+!results/metrics.csv
+!results/figures/
+
+# Snakemake bookkeeping
+.snakemake/
+
+# Python / editors / OS
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+.DS_Store
