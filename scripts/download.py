@@ -56,14 +56,23 @@ with cellxgene_census.open_soma(census_version=cfg["census_version"]) as census:
     print(f"{len(obs):,} matching cells from {obs.donor_id.nunique()} donors", flush=True)
 
     # 2) Pick donors, split evenly across disease groups so both are represented
+    #    Skip very large donors: we fetch all of a donor's cells before subsampling,
+    #    so a 40k-cell donor costs ~20x more download than a 2k-cell one.
     donor_disease = obs.groupby("donor_id")["disease"].agg(lambda s: s.mode().iat[0])
+    donor_size = obs.donor_id.value_counts().reindex(donor_disease.index)
+    cap = cfg.get("max_cells_fetch_per_donor", 15000)
     per_group = max(1, cfg["max_donors"] // len(cfg["diseases"]))
     chosen = []
     for d in cfg["diseases"]:
-        pool = np.sort(donor_disease[donor_disease == d].index.values)
+        in_group = donor_disease == d
+        pool = np.sort(donor_disease[in_group & (donor_size <= cap)].index.values)
         picked = rng.choice(pool, size=min(per_group, len(pool)), replace=False)
         chosen += sorted(picked)
-        print(f"  {d}: {len(picked)} of {len(pool)} donors", flush=True)
+        print(
+            f"  {d}: {len(picked)} picked from {len(pool)} donors with <= {cap:,} cells "
+            f"({int((in_group & (donor_size > cap)).sum())} larger donors skipped)",
+            flush=True,
+        )
 
     # 3) Fetch each donor's cells, subsample locally, cache to disk
     t_all = time.time()
@@ -73,6 +82,7 @@ with cellxgene_census.open_soma(census_version=cfg["census_version"]) as census:
             print(f"[{i}/{len(chosen)}] {donor}: cached, skipping", flush=True)
             continue
         coords = np.sort(obs.loc[obs.donor_id == donor, "soma_joinid"].values)
+        print(f"[{i}/{len(chosen)}] {donor}: fetching {len(coords):,} cells...", flush=True)
         t = time.time()
         a = cellxgene_census.get_anndata(
             census,

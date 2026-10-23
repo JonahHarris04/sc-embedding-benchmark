@@ -5,6 +5,7 @@ diseases: ["normal", "lung adenocarcinoma"]
 assay: "10x 3' v3"
 max_donors: 20            # split evenly between normal and adenocarcinoma
 max_cells_per_donor: 2000
+max_cells_fetch_per_donor: 15000   # skip donors larger than this (they download slowly)
 min_cells_per_type: 50    # drop cell types too small to evaluate fairly
 seed: 0
 
